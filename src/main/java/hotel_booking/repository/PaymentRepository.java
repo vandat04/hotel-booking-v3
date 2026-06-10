@@ -28,32 +28,33 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
                 (
                     :keyword IS NULL
                     OR LOWER(p.transactionReference)
-                        LIKE LOWER(CONCAT('%', :keyword, '%'))
+                        LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
                     OR LOWER(p.gatewayName)
-                        LIKE LOWER(CONCAT('%', :keyword, '%'))
-                    OR LOWER(p.paymentType)
-                        LIKE LOWER(CONCAT('%', :keyword, '%'))
+                        LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
+                    OR LOWER(CAST(p.paymentType AS string))
+                        LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
                 )
             AND
                 (
                     :status IS NULL
-                    OR LOWER(p.status) = LOWER(:status)
+                    OR LOWER(CAST(p.status AS string)) = LOWER(CAST(:status AS string))
                 )
             AND
                 (
                     :paymentMethod IS NULL
-                    OR LOWER(p.paymentMethod)
-                        = LOWER(:paymentMethod)
+                    OR LOWER(CAST(p.paymentMethod AS string))
+                        = LOWER(CAST(:paymentMethod AS string))
                 )
+            ORDER BY p.paymentDate DESC
             """)
     Page<Payment> searchPayments(
-            String keyword,
-            String status,
-            String paymentMethod,
+            @org.springframework.data.repository.query.Param("keyword") String keyword,
+            @org.springframework.data.repository.query.Param("status") String status,
+            @org.springframework.data.repository.query.Param("paymentMethod") String paymentMethod,
             Pageable pageable
     );
 
-    @Query("""
+    @Query(value = """
             SELECT p
             FROM Payment p
             JOIN p.booking b
@@ -61,74 +62,67 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
                 (
                     :keyword IS NULL
                     OR LOWER(p.transactionReference)
-                        LIKE LOWER(CONCAT('%', :keyword, '%'))
+                        LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
                     OR LOWER(p.gatewayName)
-                        LIKE LOWER(CONCAT('%', :keyword, '%'))
-                    OR LOWER(p.paymentType)
-                        LIKE LOWER(CONCAT('%', :keyword, '%'))
+                        LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
+                    OR LOWER(CAST(p.paymentType AS string))
+                        LIKE LOWER(CONCAT('%', CAST(:keyword AS string), '%'))
                 )
-            
             AND
                 (
                     :status IS NULL
-                    OR LOWER(p.status) = LOWER(:status)
+                    OR LOWER(CAST(p.status AS string)) = LOWER(CAST(:status AS string))
                 )
-            
             AND
                 (
                     :paymentMethod IS NULL
-                    OR LOWER(p.paymentMethod)
-                        = LOWER(:paymentMethod)
+                    OR LOWER(CAST(p.paymentMethod AS string))
+                        = LOWER(CAST(:paymentMethod AS string))
                 )
-            
             AND
                 (
                     :bookingSource IS NULL
-                    OR LOWER(b.bookingSource)
-                        = LOWER(:bookingSource)
+                    OR LOWER(CAST(b.bookingSource AS string))
+                        = LOWER(CAST(:bookingSource AS string))
                 )
-            
             AND
                 (
                     :otaChannel IS NULL
-                    OR LOWER(b.bookingSource)
-                        = LOWER(:otaChannel)
+                    OR LOWER(CAST(b.bookingSource AS string))
+                        = LOWER(CAST(:otaChannel AS string))
                 )
-            
             AND
                 (
                     :fromDate IS NULL
                     OR p.paymentDate >= :fromDate
                 )
-            
             AND
                 (
                     :toDate IS NULL
                     OR p.paymentDate <= :toDate
                 )
-            
             AND
                 (
                     :minAmount IS NULL
                     OR p.amount >= :minAmount
                 )
-            
             AND
                 (
                     :maxAmount IS NULL
                     OR p.amount <= :maxAmount
                 )
+            ORDER BY p.paymentDate DESC
             """)
     Page<Payment> filterPayments(
-            String keyword,
-            String status,
-            String paymentMethod,
-            String bookingSource,
-            String otaChannel,
-            LocalDateTime fromDate,
-            LocalDateTime toDate,
-            BigDecimal minAmount,
-            BigDecimal maxAmount,
+            @org.springframework.data.repository.query.Param("keyword") String keyword,
+            @org.springframework.data.repository.query.Param("status") String status,
+            @org.springframework.data.repository.query.Param("paymentMethod") String paymentMethod,
+            @org.springframework.data.repository.query.Param("bookingSource") String bookingSource,
+            @org.springframework.data.repository.query.Param("otaChannel") String otaChannel,
+            @org.springframework.data.repository.query.Param("fromDate") LocalDateTime fromDate,
+            @org.springframework.data.repository.query.Param("toDate") LocalDateTime toDate,
+            @org.springframework.data.repository.query.Param("minAmount") BigDecimal minAmount,
+            @org.springframework.data.repository.query.Param("maxAmount") BigDecimal maxAmount,
             Pageable pageable
     );
 
