@@ -36,7 +36,7 @@ public class RoomDamage {
     @Column(name = "actual_damage_fee")
     private BigDecimal actualDamageFee;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String note;
 
     @Column(name = "evidence_image_url")

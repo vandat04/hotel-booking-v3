@@ -6,7 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "ResetPasswordOTP", schema = "dbo", uniqueConstraints = {
+@Table(name = "ResetPasswordOTP", uniqueConstraints = {
         @UniqueConstraint(columnNames = "user_id")
 })
 @Getter

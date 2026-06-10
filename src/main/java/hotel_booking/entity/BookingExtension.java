@@ -35,7 +35,7 @@ public class BookingExtension {
     @Column(name = "payment_status")
     private String paymentStatus;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String reason;
 
     @Column(name = "created_at")

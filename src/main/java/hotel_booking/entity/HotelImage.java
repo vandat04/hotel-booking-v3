@@ -24,7 +24,7 @@ public class HotelImage {
 
     // ================= FIELDS =================
 
-    @Column(name = "image_url", nullable = false, columnDefinition = "VARCHAR(MAX)")
+    @Column(name = "image_url", nullable = false, columnDefinition = "TEXT")
     private String imageUrl;
 
     @Column(name = "is_primary")

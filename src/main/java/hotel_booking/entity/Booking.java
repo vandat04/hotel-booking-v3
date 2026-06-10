@@ -63,7 +63,7 @@ public class Booking {
     @Column(name = "payment_status")
     private String paymentStatus;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String notes;
 
     @Column(name = "created_at")

@@ -38,10 +38,10 @@ public class Review {
 
     private Integer rating;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String comment;
 
-    @Column(name = "hotel_reply", columnDefinition = "NVARCHAR(MAX)")
+    @Column(name = "hotel_reply", columnDefinition = "TEXT")
     private String hotelReply;
 
     @Column(name = "replied_at")

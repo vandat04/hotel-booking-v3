@@ -28,7 +28,7 @@ public class RoomType {
     // ===== BASIC INFO =====
     private String name;
 
-    @Column(columnDefinition = "NVARCHAR(MAX)")
+    @Column(columnDefinition = "TEXT")
     private String description;
 
     private Integer status;
