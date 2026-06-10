@@ -72,16 +72,16 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
                 SELECT b
                 FROM Booking b
                 WHERE
-                    (:status IS NULL OR b.status = :status)
-                AND (:paymentStatus IS NULL
+                    (CAST(:status AS string) IS NULL OR b.status = :status)
+                AND (CAST(:paymentStatus AS string) IS NULL
                      OR b.paymentStatus = :paymentStatus)
-                AND (:roomTypeId IS NULL
+                AND (CAST(:roomTypeId AS integer) IS NULL
                      OR b.roomType.id = :roomTypeId)
-                AND (:fromDate IS NULL
+                AND (CAST(:fromDate AS timestamp) IS NULL
                      OR b.createdAt >= :fromDate)
-                AND (:toDate IS NULL
+                AND (CAST(:toDate AS timestamp) IS NULL
                      OR b.createdAt <= :toDate)
-                AND (:bookingSource IS NULL
+                AND (CAST(:bookingSource AS string) IS NULL
                      OR b.bookingSource = :bookingSource)
             """)
     Page<Booking> filterBookings(

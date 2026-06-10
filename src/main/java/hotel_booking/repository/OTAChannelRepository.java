@@ -24,7 +24,7 @@ public interface OTAChannelRepository extends JpaRepository<OTAChannel, Integer>
                 (:keyword IS NULL
                     OR LOWER(o.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                     OR LOWER(o.otaHotelId) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            AND (:isActive IS NULL
+            AND (CAST(:isActive AS boolean) IS NULL
                     OR o.isActive = :isActive)
             """)
     Page<OTAChannel> filterOTAChannels(

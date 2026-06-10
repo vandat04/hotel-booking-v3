@@ -57,10 +57,10 @@ public interface RoomTypeRepository extends JpaRepository<RoomType, Integer> {
                 (:bookingType = 'DAILY' AND rt.pricePerDay BETWEEN :minPrice AND :maxPrice)
                 OR (:bookingType = 'HOURLY' AND rt.pricePerHour BETWEEN :minPrice AND :maxPrice)
             )
-            AND (:adults IS NULL OR rt.maxAdults >= :adults)
-            AND (:children IS NULL OR rt.maxChildren >= :children)
+            AND (CAST(:adults AS integer) IS NULL OR rt.maxAdults >= :adults)
+            AND (CAST(:children AS integer) IS NULL OR rt.maxChildren >= :children)
             AND (
-                :checkIn IS NULL OR :checkOut IS NULL OR
+                CAST(:checkIn AS timestamp) IS NULL OR CAST(:checkOut AS timestamp) IS NULL OR
                 EXISTS (
                     SELECT r FROM Room r
                     WHERE r.roomType = rt

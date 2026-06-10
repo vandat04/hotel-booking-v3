@@ -93,22 +93,22 @@ public interface PaymentRepository extends JpaRepository<Payment, Integer> {
                 )
             AND
                 (
-                    :fromDate IS NULL
+                    CAST(:fromDate AS timestamp) IS NULL
                     OR p.paymentDate >= :fromDate
                 )
             AND
                 (
-                    :toDate IS NULL
+                    CAST(:toDate AS timestamp) IS NULL
                     OR p.paymentDate <= :toDate
                 )
             AND
                 (
-                    :minAmount IS NULL
+                    CAST(:minAmount AS double) IS NULL
                     OR p.amount >= :minAmount
                 )
             AND
                 (
-                    :maxAmount IS NULL
+                    CAST(:maxAmount AS double) IS NULL
                     OR p.amount <= :maxAmount
                 )
             ORDER BY p.paymentDate DESC

@@ -44,11 +44,11 @@ public interface ReviewRepository extends JpaRepository<Review, Integer> {
                         OR LOWER(r.roomType.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
                     )
             
-                    AND (:rating IS NULL OR r.rating = :rating)
+                    AND (CAST(:rating AS integer) IS NULL OR r.rating = :rating)
             
-                    AND (:fromDate IS NULL OR r.createdAt >= :fromDate)
+                    AND (CAST(:fromDate AS timestamp) IS NULL OR r.createdAt >= :fromDate)
             
-                    AND (:toDate IS NULL OR r.createdAt <= :toDate)
+                    AND (CAST(:toDate AS timestamp) IS NULL OR r.createdAt <= :toDate)
             
                 ORDER BY r.createdAt DESC
             """)
