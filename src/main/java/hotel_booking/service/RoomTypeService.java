@@ -161,10 +161,12 @@ public class RoomTypeService {
     public PageResponse<RoomTypeResponse> getAllRoomTypes(Integer status, PaginationRequest request) {
 
         Pageable pageable = PaginationUtil.build(request);
+        Page<RoomType> pageData;
         if (status == null) {
-            status = 1;
+            pageData = roomTypeRepository.findAll(pageable);
+        } else {
+            pageData = roomTypeRepository.findAllByStatus(status, pageable);
         }
-        Page<RoomType> pageData = roomTypeRepository.findAllByStatus(status, pageable);
         List<RoomTypeResponse> content =
                 pageData.getContent()
                         .stream()

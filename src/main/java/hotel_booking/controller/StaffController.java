@@ -36,6 +36,22 @@ public class StaffController {
         return ResponseEntity.ok(ApiResponse.success(userService.getMyProfile(getUserId())));
     }
 
+    // ================= UPDATE PROFILE =================
+    @PutMapping("/me")
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateProfile(
+            @RequestBody hotel_booking.dto.request.UpdateProfileRequest request
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(userService.updateProfile(getUserId(), request)));
+    }
+
+    // ================= UPDATE AVATAR PROFILE =================
+    @PutMapping(value = "/me/avatar", consumes = org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<ApiResponse<UserProfileResponse>> updateAvatar(
+            @RequestParam("file") org.springframework.web.multipart.MultipartFile file
+    ) {
+        return ResponseEntity.ok(ApiResponse.success(userService.updateAvatar(getUserId(), file)));
+    }
+
     // ================= VIEW DANH SACH CA LAM =================
     @GetMapping("/my-current-week")
     public ResponseEntity<ApiResponse<List<AssignStaffResponse>>> getMyCurrentWeekShifts() {
