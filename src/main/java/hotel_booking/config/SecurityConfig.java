@@ -45,13 +45,12 @@ public class SecurityConfig {
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration config = new CorsConfiguration();
 
-        config.setAllowedOrigins(List.of(
-                "http://127.0.0.1:5500",
-                "http://localhost:5500",
-                "http://localhost:3000",
-                "http://localhost:5173",
-                "http://localhost:4200",
-                "http://localhost:8081"
+        config.setAllowedOriginPatterns(List.of(
+                "http://127.0.0.1:*",
+                "http://localhost:*",
+                "https://*.vercel.app",
+                "https://checkinsystem.vercel.app",
+                "https://hotel-booking-v3.onrender.com"
         ));
 
         config.setAllowedMethods(List.of(
