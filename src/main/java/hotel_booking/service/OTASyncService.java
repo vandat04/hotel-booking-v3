@@ -34,6 +34,7 @@ public class OTASyncService {
     private final RoomScheduleRepository roomScheduleRepository;
     private final RoomTypeRepository roomTypeRepository;
     private final BookingService bookingService;
+    private final PaymentRepository paymentRepository;
 
     // Cron job to run every 1 minute (60,000 ms) for near real-time sync
     @Scheduled(fixedRate = 60000)
@@ -164,6 +165,20 @@ public class OTASyncService {
 
                     bookingRepository.save(booking);
 
+                    // Create Payment (Transaction)
+                    Payment payment = Payment.builder()
+                            .booking(booking)
+                            .amount(BigDecimal.ZERO)
+                            .paymentMethod("OTA")
+                            .gatewayName(mapping.getOtaName())
+                            .paymentType("BOOKING")
+                            .status("SUCCESS")
+                            .transactionReference(uid)
+                            .paymentDate(LocalDateTime.now())
+                            .notes("Initial payment created from iCal sync. UID: " + uid)
+                            .build();
+                    paymentRepository.save(payment);
+
                     // Allocate Room
                     Integer roomId = availResponse.getListRoomCanBook().get(0);
                     Room room = roomRepository.findById(roomId).orElseThrow();
@@ -202,6 +217,20 @@ public class OTASyncService {
                             .build();
 
                     bookingRepository.save(booking);
+
+                    // Create Payment (Transaction) for overbooked case
+                    Payment payment = Payment.builder()
+                            .booking(booking)
+                            .amount(BigDecimal.ZERO)
+                            .paymentMethod("OTA")
+                            .gatewayName(mapping.getOtaName())
+                            .paymentType("BOOKING")
+                            .status("SUCCESS")
+                            .transactionReference(uid)
+                            .paymentDate(LocalDateTime.now())
+                            .notes("Initial payment created from iCal sync (OVERBOOKED). UID: " + uid)
+                            .build();
+                    paymentRepository.save(payment);
                     log.warn("Overbooked for OTA UID: {}. Booking created without schedule.", uid);
                 }
             } else {

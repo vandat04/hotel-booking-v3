@@ -17,6 +17,9 @@ import org.springframework.stereotype.Service;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
+import hotel_booking.entity.Payment;
+import hotel_booking.repository.PaymentRepository;
+import java.util.List;
 import java.util.Properties;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -28,6 +31,7 @@ public class EmailParserService {
     private static final Logger log = LoggerFactory.getLogger(EmailParserService.class);
 
     private final BookingRepository bookingRepository;
+    private final PaymentRepository paymentRepository;
 
     @Value("${spring.mail.username}")
     private String mailUsername;
@@ -35,8 +39,8 @@ public class EmailParserService {
     @Value("${spring.mail.password}")
     private String mailPassword;
 
-    // Cron job to run every 5 minutes
-    @Scheduled(fixedRate = 300000)
+    // Cron job to run every 1 minute for faster updates
+    @Scheduled(fixedRate = 60000)
     public void checkAndParseEmails() {
         log.info("Starting email parser scan...");
         if (mailUsername == null || mailUsername.isBlank() || mailPassword == null || mailPassword.isBlank()) {
@@ -171,6 +175,29 @@ public class EmailParserService {
             booking.setTotalAmount(price);
             booking.setNotes(booking.getNotes() + "\nEnriched from Email. Code: " + reservationCode + ", Price: " + price);
             bookingRepository.save(booking);
+            
+            // Enrich transaction
+            List<Payment> payments = paymentRepository.findByBookingId(booking.getId());
+            if (!payments.isEmpty()) {
+                Payment p = payments.get(0);
+                p.setAmount(price);
+                p.setNotes(p.getNotes() + "\nEnriched from Email. Code: " + reservationCode + ", Price: " + price);
+                paymentRepository.save(p);
+            } else {
+                Payment p = Payment.builder()
+                        .booking(booking)
+                        .amount(price)
+                        .paymentMethod("OTA")
+                        .gatewayName("AIRBNB")
+                        .paymentType("BOOKING")
+                        .status("SUCCESS")
+                        .transactionReference(reservationCode)
+                        .paymentDate(LocalDateTime.now())
+                        .notes("Created from Email parser enrichment. Code: " + reservationCode)
+                        .build();
+                paymentRepository.save(p);
+            }
+            
             log.info("Enriched Airbnb Booking ID={} with Guest='{}', Price={}", booking.getId(), guestName, price);
         } else {
             log.warn("Found email for Airbnb Code {} but no matching iCal Booking found in DB.", reservationCode);
@@ -218,6 +245,29 @@ public class EmailParserService {
             booking.setTotalAmount(price);
             booking.setNotes(booking.getNotes() + "\nEnriched from Email. Code: " + reservationCode + ", Price: " + price);
             bookingRepository.save(booking);
+            
+            // Enrich transaction
+            List<Payment> payments = paymentRepository.findByBookingId(booking.getId());
+            if (!payments.isEmpty()) {
+                Payment p = payments.get(0);
+                p.setAmount(price);
+                p.setNotes(p.getNotes() + "\nEnriched from Email. Code: " + reservationCode + ", Price: " + price);
+                paymentRepository.save(p);
+            } else {
+                Payment p = Payment.builder()
+                        .booking(booking)
+                        .amount(price)
+                        .paymentMethod("OTA")
+                        .gatewayName("BOOKING")
+                        .paymentType("BOOKING")
+                        .status("SUCCESS")
+                        .transactionReference(reservationCode)
+                        .paymentDate(LocalDateTime.now())
+                        .notes("Created from Email parser enrichment. Code: " + reservationCode)
+                        .build();
+                paymentRepository.save(p);
+            }
+            
             log.info("Enriched Booking.com Booking ID={} with Guest='{}', Price={}", booking.getId(), guestName, price);
         } else {
             log.warn("Found email for Booking.com Code {} but no matching iCal Booking found in DB.", reservationCode);
