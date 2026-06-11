@@ -21,14 +21,14 @@ public interface OTAChannelRepository extends JpaRepository<OTAChannel, Integer>
             SELECT o
             FROM OTAChannel o
             WHERE
-                (:keyword IS NULL
-                    OR LOWER(o.name) LIKE LOWER(CONCAT('%', :keyword, '%'))
-                    OR LOWER(o.otaHotelId) LIKE LOWER(CONCAT('%', :keyword, '%')))
-            AND (CAST(:isActive AS boolean) IS NULL
+                (:searchPattern IS NULL
+                    OR LOWER(o.name) LIKE :searchPattern
+                    OR LOWER(o.otaHotelId) LIKE :searchPattern)
+            AND (:isActive IS NULL
                     OR o.isActive = :isActive)
             """)
     Page<OTAChannel> filterOTAChannels(
-            @Param("keyword") String keyword,
+            @Param("searchPattern") String searchPattern,
             @Param("isActive") Boolean isActive,
             Pageable pageable
     );

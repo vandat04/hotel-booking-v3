@@ -17,6 +17,7 @@ public class RoomTypeImage {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @ManyToOne
     @JoinColumn(name = "room_type_id")
     private RoomType roomType;

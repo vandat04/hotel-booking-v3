@@ -150,8 +150,18 @@ public interface RoomScheduleRepository extends JpaRepository<RoomSchedule, Inte
     List<RoomSchedule> findActiveScheduledSchedulesBetween(
             @Param("start") LocalDateTime start,
             @Param("end") LocalDateTime end
-    );
+        );
 
     @Query("SELECT rs FROM RoomSchedule rs WHERE rs.room.id = :roomId AND rs.status = 'ACTIVE'")
     List<RoomSchedule> findActiveSchedulesByRoomId(@Param("roomId") Integer roomId);
+
+    @Query("""
+            SELECT rs
+            FROM RoomSchedule rs
+            JOIN FETCH rs.room r
+            JOIN FETCH rs.booking b
+            WHERE r.roomType.id = :roomTypeId
+            AND rs.status IN ('SCHEDULED', 'ACTIVE', 'HOLD')
+            """)
+    List<RoomSchedule> findActiveSchedulesByRoomTypeId(@Param("roomTypeId") Integer roomTypeId);
 }

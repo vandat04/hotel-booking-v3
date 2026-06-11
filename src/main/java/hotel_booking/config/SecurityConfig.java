@@ -87,6 +87,7 @@ public class SecurityConfig {
                         // PUBLIC API
                         .requestMatchers("/auth/**").permitAll()
                         .requestMatchers("/ota/**").permitAll()
+                        .requestMatchers("/ical/**").permitAll()
                         .requestMatchers("/hotel/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()

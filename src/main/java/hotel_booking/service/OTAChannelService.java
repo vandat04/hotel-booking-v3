@@ -71,7 +71,11 @@ public class OTAChannelService {
             PaginationRequest pagination
     ) {
         Pageable pageable = PaginationUtil.build(pagination);
-        Page<OTAChannel> otaPage = otaChannelRepository.filterOTAChannels(request.getKeyword(), request.getIsActive(), pageable);
+        String searchPattern = null;
+        if (request.getKeyword() != null && !request.getKeyword().isBlank()) {
+            searchPattern = "%" + request.getKeyword().trim().toLowerCase() + "%";
+        }
+        Page<OTAChannel> otaPage = otaChannelRepository.filterOTAChannels(searchPattern, request.getIsActive(), pageable);
 
         List<OTAChannelResponse> content =
                 otaPage.getContent()

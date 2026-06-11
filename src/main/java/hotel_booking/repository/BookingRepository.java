@@ -172,6 +172,9 @@ public interface BookingRepository extends JpaRepository<Booking, Integer> {
             Pageable pageable
     );
 
+    @Query("SELECT b FROM Booking b WHERE b.bookingSource = :source AND b.notes LIKE %:uid%")
+    Optional<Booking> findByBookingSourceAndUid(@Param("source") String source, @Param("uid") String uid);
+
     @Modifying
     @Query("""
                 UPDATE Booking b

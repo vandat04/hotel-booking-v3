@@ -74,12 +74,15 @@ public class RoomType {
     @OneToMany(mappedBy = "roomType")
     private List<RoomTypeImage> images;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "roomType")
     private List<Room> rooms;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "roomType")
     private List<Booking> bookings;
 
+    @com.fasterxml.jackson.annotation.JsonIgnore
     @OneToMany(mappedBy = "roomType")
     private List<RoomTypeItem> roomTypeItems;
 }
