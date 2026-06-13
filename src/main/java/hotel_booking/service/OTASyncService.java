@@ -119,6 +119,11 @@ public class OTASyncService {
             }
 
             String uid = event.getUid().getValue();
+            // Skip events that originated from CheckinX to prevent import/export loops
+            if (uid != null && (uid.contains("@checkinx.com") || uid.contains("checkinx") || uid.startsWith("schedule-"))) {
+                log.info("Ignoring event originating from CheckinX: {}", uid);
+                continue;
+            }
             activeOtaUids.add(uid);
 
             Date rawStart = event.getDateStart().getValue();
@@ -231,7 +236,28 @@ public class OTASyncService {
                             .notes("Initial payment created from iCal sync (OVERBOOKED). UID: " + uid)
                             .build();
                     paymentRepository.save(payment);
-                    log.warn("Overbooked for OTA UID: {}. Booking created without schedule.", uid);
+
+                    // Assign to the first active room of this type anyway to make it visible on the timeline
+                    List<Room> allRoomsOfType = roomRepository.findAllActiveRooms().stream()
+                            .filter(r -> r.getRoomType().getId().equals(mapping.getRoomType().getId()))
+                            .toList();
+
+                    if (!allRoomsOfType.isEmpty()) {
+                        Room room = allRoomsOfType.get(0);
+                        RoomSchedule schedule = RoomSchedule.builder()
+                                .booking(booking)
+                                .room(room)
+                                .startAt(checkIn)
+                                .endAt(checkOut)
+                                .status("SCHEDULED")
+                                .createdAt(LocalDateTime.now())
+                                .updatedAt(LocalDateTime.now())
+                                .build();
+                        roomScheduleRepository.save(schedule);
+                        log.warn("Overbooked for OTA UID: {}. Booking assigned to room {} anyway to show conflict.", uid, room.getRoomNumber());
+                    } else {
+                        log.warn("Overbooked for OTA UID: {} and no rooms found for this room type.", uid);
+                    }
                 }
             } else {
                 // Booking already exists: check if dates have changed
