@@ -314,26 +314,29 @@ public class OTASyncService {
         }
 
         // Process cancellations (bookings present in DB but missing from the fresh .ics file)
-        List<Booking> dbActiveBookings = bookingRepository.findAll();
-        for (Booking booking : dbActiveBookings) {
-            if (booking.getBookingSource() != null && booking.getBookingSource().equalsIgnoreCase(mapping.getOtaName()) 
-                && "CONFIRMED".equalsIgnoreCase(booking.getStatus())
-                && booking.getRoomType().getId().equals(mapping.getRoomType().getId())) {
-                
-                String notes = booking.getNotes();
-                if (notes != null && notes.contains("UID: ")) {
-                    String uid = notes.substring(notes.indexOf("UID: ") + 5).trim();
-                    if (!activeOtaUids.contains(uid)) {
-                        log.info("OTA Booking UID: {} is no longer in the iCal feed. Cancelling booking...", uid);
-                        booking.setStatus("CANCELLED");
-                        booking.setUpdatedAt(LocalDateTime.now());
-                        bookingRepository.save(booking);
+        // Skip cancellation processing for AGODA mock channel since it runs on a stateless serverless host (Vercel)
+        if (!"AGODA".equalsIgnoreCase(mapping.getOtaName())) {
+            List<Booking> dbActiveBookings = bookingRepository.findAll();
+            for (Booking booking : dbActiveBookings) {
+                if (booking.getBookingSource() != null && booking.getBookingSource().equalsIgnoreCase(mapping.getOtaName()) 
+                    && "CONFIRMED".equalsIgnoreCase(booking.getStatus())
+                    && booking.getRoomType().getId().equals(mapping.getRoomType().getId())) {
+                    
+                    String notes = booking.getNotes();
+                    if (notes != null && notes.contains("UID: ")) {
+                        String uid = notes.substring(notes.indexOf("UID: ") + 5).trim();
+                        if (!activeOtaUids.contains(uid)) {
+                            log.info("OTA Booking UID: {} is no longer in the iCal feed. Cancelling booking...", uid);
+                            booking.setStatus("CANCELLED");
+                            booking.setUpdatedAt(LocalDateTime.now());
+                            bookingRepository.save(booking);
 
-                        List<RoomSchedule> schedules = roomScheduleRepository.findByBookingId(booking.getId());
-                        for (RoomSchedule rs : schedules) {
-                            rs.setStatus("CANCELLED");
-                            rs.setUpdatedAt(LocalDateTime.now());
-                            roomScheduleRepository.save(rs);
+                            List<RoomSchedule> schedules = roomScheduleRepository.findByBookingId(booking.getId());
+                            for (RoomSchedule rs : schedules) {
+                                rs.setStatus("CANCELLED");
+                                rs.setUpdatedAt(LocalDateTime.now());
+                                roomScheduleRepository.save(rs);
+                            }
                         }
                     }
                 }
