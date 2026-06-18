@@ -30,6 +30,8 @@ public class OTAChannelService {
     private final RoomRepository roomRepository;
     private final RoomScheduleRepository roomScheduleRepository;
     private final NotificationService notificationService;
+    private final PaymentRepository paymentRepository;
+    private final InvoiceRepository invoiceRepository;
 
     // ==================================
     // ======= CREATE OTA  ========
@@ -194,6 +196,34 @@ public class OTAChannelService {
             roomScheduleRepository.save(schedule);
         }
 
+        // ===== CREATE PAYMENT =====
+        Payment payment = Payment.builder()
+                .booking(booking)
+                .amount(booking.getTotalAmount())
+                .paymentMethod("ONLINE")
+                .gatewayName("OTA_" + request.getOtaChannel())
+                .paymentType("FULL_ROOM_CHARGE")
+                .status("SUCCESS")
+                .transactionReference(request.getBookingId())
+                .paymentDate(LocalDateTime.now())
+                .notes("OTA Sync payment reference: " + request.getBookingId())
+                .build();
+        paymentRepository.save(payment);
+
+        // ===== CREATE INVOICE =====
+        Invoice invoice = Invoice.builder()
+                .booking(booking)
+                .payment(payment)
+                .customerName(booking.getCustomerName())
+                .customerEmail(booking.getCustomerEmail())
+                .customerPhone(booking.getCustomerPhone())
+                .amountPaid(payment.getAmount())
+                .invoiceDescription("TIỀN PHÒNG ĐỒNG BỘ OTA")
+                .issuedAt(LocalDateTime.now())
+                .isSentEmail(false)
+                .build();
+        invoiceRepository.save(invoice);
+
         notificationService.createCustomerNotification(null, booking, "BOOKING ROOM IN CHECK-X", "Booking Success From OTA", "PAYMENT_SUCCESS");
 
     }
@@ -208,6 +238,10 @@ public class OTAChannelService {
         notes.append("\nPayment Type: ").append(request.getPayment().getPaymentType());
         notes.append("\nCurrency: ").append(request.getPricing().getCurrency());
         notes.append("\nCommission Amount: ").append(request.getPricing().getCommissionAmount());
+
+        // Ghi nhận UID theo chuẩn iCal để tránh tạo trùng lịch khi đồng bộ iCal
+        String otaDomain = (request.getOtaChannel() != null ? request.getOtaChannel().toLowerCase() : "agoda") + "-mock.com";
+        notes.append("\nUID: ").append(request.getBookingId()).append("@").append(otaDomain);
 
         if (request.getSpecialRequests() != null && !request.getSpecialRequests().isEmpty()) {
             notes.append("\nSpecial Requests:");

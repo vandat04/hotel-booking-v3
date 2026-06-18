@@ -91,6 +91,7 @@ public class SecurityConfig {
                         .requestMatchers("/hotel/**").permitAll()
                         .requestMatchers("/uploads/**").permitAll()
                         .requestMatchers("/swagger-ui/**", "/v3/api-docs/**").permitAll()
+                        .requestMatchers("/admin/ota-channels/booking").permitAll()
 
                         // ROLE
                         .requestMatchers("/admin/**").hasAuthority("ROLE_ADMIN")

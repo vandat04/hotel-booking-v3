@@ -48,9 +48,9 @@ public class BookingService {
         if (req.getCheckIn() == null || req.getCheckOut() == null) {
             throw new IllegalArgumentException("Check-in / Check-out cannot be null");
         }
-        if (req.getCheckIn().isBefore(now)) {
-            throw new IllegalArgumentException("Check-in must be after current time");
-        }
+        // if (req.getCheckIn().isBefore(now)) {
+        //     throw new IllegalArgumentException("Check-in must be after current time");
+        // }
         if (!req.getCheckOut().isAfter(req.getCheckIn())) {
             throw new IllegalArgumentException("Check-out must be after check-in");
         }
