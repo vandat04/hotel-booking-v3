@@ -264,13 +264,10 @@ public class OTASyncService {
                 Booking booking = bookingOpt.get();
                 if (!booking.getRequestedCheckin().isEqual(checkIn) || !booking.getRequestedCheckout().isEqual(checkOut)) {
                     log.info("Booking dates changed for OTA UID: {}. Re-allocating...", uid);
-                    // Cancel old schedules
+                    // Delete old schedules because of the database unique constraint on (booking_id, room_id)
                     List<RoomSchedule> oldSchedules = roomScheduleRepository.findByBookingId(booking.getId());
-                    for (RoomSchedule rs : oldSchedules) {
-                        rs.setStatus("CANCELLED");
-                        rs.setUpdatedAt(LocalDateTime.now());
-                        roomScheduleRepository.save(rs);
-                    }
+                    roomScheduleRepository.deleteAll(oldSchedules);
+                    roomScheduleRepository.flush();
 
                     // Check availability for new dates
                     CheckAvailabilityRequest availRequest = CheckAvailabilityRequest.builder()
