@@ -20,6 +20,7 @@ public interface RoomRepository extends JpaRepository<Room, Integer> {
             FROM Room r
             WHERE r.roomType.id = :roomTypeId
             AND r.isActive = true
+            AND r.allocatedFor = 'DAILY'
             """)
     int countTotalRooms(@Param("roomTypeId") Integer roomTypeId);
 
